@@ -58,7 +58,7 @@ Define ```DJANGO_SOCKJS_SERVER``` in ```settings.py```.
 
 ## Usage:
 <center>
-<img src="https://github.com/alfss/django-sockjs-server/master/README_2.png" alt="2">
+<img src="https://raw.github.com/alfss/django-sockjs-server/master/README_1.png" alt="2">
 </center>
 
 Run sockjs-server
