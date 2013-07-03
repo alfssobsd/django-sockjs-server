@@ -1,7 +1,7 @@
 from distutils.core import setup
 import os
 
-version = "0.1.0"
+version = "0.1.1"
 
 # Compile the list of packages available, because distutils doesn't have
 # an easy way to do this.
@@ -30,8 +30,8 @@ setup(name='django-sockjs-server',
       description='SockJS server for Django',
       author='Sergey Kravchuk',
       author_email='alfss.obsd@gmail.com',
-      url='http://www.bitbucket.org/ubernostrum/django-registration/',
-      download_url='https://bitbucket.org/ubernostrum/django-registration/downloads/django-registration-1.0.tar.gz',
+      url='https://github.com/alfss/django-sockjs-server',
+      download_url='https://github.com/alfss/django-sockjs-server/archive/master.tar.gz',
       package_dir={'django_sockjs_server': 'django_sockjs_server'},
       packages=packages,
       install_requires=['sockjs-tornado >= 1.0.0',
