@@ -141,7 +141,7 @@ INSTALLED_APPS = (
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 DJANGO_SOCKJS_SERVER = {
-    'rabbitmq_server_host': '10.211.55.16',
+    'rabbitmq_server_host': 'localhost',
     'rabbitmq_user': 'guest',
     'rabbitmq_password': 'guest',
     'rabbitmq_server_port': 5672,
