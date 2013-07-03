@@ -54,3 +54,83 @@ Define ```DJANGO_SOCKJS_SERVER``` in ```settings.py```.
 * secret_key - salt for subscribe
 * sockjs_url - path for client sockjs
 
+
+
+## Usage:
+<center>
+<img src="https://github.com/alfss/django-sockjs-server/master/README_2.png" alt="2">
+</center>
+
+Run sockjs-server
+
+```
+./manage.py sockjs_server
+```
+
+Append sockjs client library to your page
+```
+   <head>
+       <script src="http://cdn.sockjs.org/sockjs-0.3.min.js">
+       ...
+```
+
+Open page in browser and connect to sockjs-tornado server
+
+```
+        {% load sockjs_server_tags %}
+        window.sockjs_action_pull = new Array();
+        var new_conn = function() {
+            window.connection_sockjs = new SockJS('{% sockjs_server_url %}');
+            window.connection_sockjs.onmessage = function(e) {
+                document.write(e.data);
+                document.write("<br/ >");
+            };
+
+            connection_sockjs.onclose = function(e) {
+                setTimeout(function() { new_conn(); }, 5000);
+            };
+
+            connection_sockjs.onopen = function(e) {
+            };
+        };
+        new_conn();
+
+```
+
+
+To get this messages you need to subscribe by token
+
+```
+        SockJS.prototype.emit = function (token, data) {
+            var meta_dict = {
+                token:token,
+                data:data
+            };
+            this.send(JSON.stringify(meta_dict))
+        };
+
+        connection_sockjs.addEventListener("open", function() {
+                connection_sockjs.emit('{% sockjs_auth_token 'user' %}', {'channel': 'user'});
+            }
+        );
+
+        or
+
+        connection_sockjs.addEventListener("open", function() {
+                connection_sockjs.emit('{% sockjs_auth_token 'user' '1' %}', {'channel': 'user'+ '1'});
+              }
+        );
+```
+
+
+Send a message from django
+
+```
+    a = SockJsServerClient()
+    test_message = dict()
+    test_message['channel'] = 'user'
+    test_message['data'] = dict()
+    test_message['data']['user_name'] = "Sergey Kravchuk"
+    test_message['data']['user_id'] = 1
+    a.publish_message(test_message)
+```

@@ -1,4 +1,4 @@
-SockJS.prototype.emit = function (token, data) { // wrapper around SockJS.send for djazator's protocol support
+SockJS.prototype.emit = function (token, data) {
     var meta_dict = {
         token:token,
         data:data
