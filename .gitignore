@@ -1,0 +1,16 @@
+*.pyc
+*.idea
+*.project
+*.pydevproject
+*.settings
+*.swp
+*.swo
+*.iml
+development.sqlite3
+
+/static/bootstrap/
+/DeployDjango/local_settings.py
+/static/bootstrap-master/bootstrap/css/bootstrap.min.css
+/static/bootstrap-master/bootstrap/css/bootstrap.css
+/celerybeat-schedule
+/MANIFEST

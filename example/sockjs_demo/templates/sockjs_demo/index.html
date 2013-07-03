@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}sockjs-0.3.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}sockjs_emit.js"></script>
+    <title></title>
+</head>
+<body>
+{% load sockjs_server_tags %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        window.sockjs_action_pull = new Array();
+        var new_conn = function() {
+            window.connection_sockjs = new SockJS('{% sockjs_server_url %}');
+            window.connection_sockjs.onmessage = function(e) {
+                document.write(e.data);
+                document.write("<br/ >");
+            };
+
+            connection_sockjs.onclose = function(e) {
+                setTimeout(function() { new_conn(); }, 5000);
+            };
+
+            connection_sockjs.onopen = function(e) {
+            };
+        };
+        new_conn();
+
+        connection_sockjs.addEventListener("open", function() {
+                connection_sockjs.emit('{% sockjs_auth_token 'user' %}', {'channel': 'user'});
+            }
+        );
+
+    });
+
+
+</script>
+
+
+
+</body>
+</html>
