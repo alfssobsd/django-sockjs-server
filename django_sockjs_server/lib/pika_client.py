@@ -88,8 +88,7 @@ class PikaClient(object):
         try:
             if len(self.subscrib_channel[event_obj['channel']]) > 0:
                 for client in self.subscrib_channel[event_obj['channel']]:
-                    self.logger.debug(
-                        'django-sockjs-server(PikaClient): send message channel = %s ' % event_obj['channel'])
+                    self.logger.debug('django-sockjs-server(PikaClient): send message channel = %s ' % event_obj['channel'])
                     client.broadcast(self.subscrib_channel[event_obj['channel']], event_json)
                     break
         except KeyError:
@@ -108,12 +107,12 @@ class PikaClient(object):
 
     def add_subscriber_channel(self, chanel, client):
         self.subscrib_channel[chanel].add(client)
-        self.logger.debug('django-sockjs-server(PikaClient): listener %s add to channel %s' % repr(client), chanel)
+        self.logger.debug('django-sockjs-server(PikaClient): listener %s add to channel %s' % (repr(client), chanel))
 
     def remove_subscriber_channel(self, chanel, client):
         try:
             self.subscrib_channel[chanel].remove(client)
-            self.logger.debug('django-sockjs-server(PikaClient): listener %s remove from channel %s' % repr(client),
-                              chanel)
+            self.logger.debug('django-sockjs-server(PikaClient): listener %s remove from channel %s' % (repr(client),
+                              chanel))
         except KeyError:
             pass
