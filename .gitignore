@@ -9,6 +9,7 @@
 development.sqlite3
 
 /static/bootstrap/
+/build/
 /DeployDjango/local_settings.py
 /static/bootstrap-master/bootstrap/css/bootstrap.min.css
 /static/bootstrap-master/bootstrap/css/bootstrap.css

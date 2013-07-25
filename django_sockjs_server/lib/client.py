@@ -3,6 +3,7 @@ import time
 import json
 import pika
 from pika.exceptions import ChannelClosed, AMQPConnectionError
+from django.core.serializers.json import DjangoJSONEncoder
 from django_sockjs_server.lib.config import SockJSSereverSettings
 
 
@@ -38,7 +39,9 @@ class SockJsServerClient(object):
         try:
             if not self.connected:
                 self._connect()
-            self.channel.basic_publish(self.config.rabbitmq_exhange_name, routing_key='',  body=json.dumps(message))
+            self.channel.basic_publish(self.config.rabbitmq_exhange_name,
+                                       routing_key='',
+                                       body=json.dumps(message, cls=DjangoJSONEncoder))
         except (ChannelClosed, AMQPConnectionError):
             if self.connected:
                 self._disconnect()
