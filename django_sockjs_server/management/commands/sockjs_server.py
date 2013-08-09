@@ -14,7 +14,8 @@ class Command(BaseCommand):
 
         router = SockJSRouter(
             SockJSConnection,
-            self.config.listen_location)
+            self.config.listen_location
+            user_settings=self.config.router_settings)
         app = tornado.web.Application(router.urls)
 
         app.listen(self.config.listen_port, address=self.config.listen_addr)
