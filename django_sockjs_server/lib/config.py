@@ -23,4 +23,4 @@ class SockJSSereverSettings(object):
         self.secret_key = conf.get('secret_key', 'not_set_secret_key')
         self.sockjs_url = conf.get('sockjs_url', 'http://localhost:8083/ws')
 
-        self.router_settings = conf.get('router_settings', None)
+        self.router_settings = conf.get('router_settings', dict())
