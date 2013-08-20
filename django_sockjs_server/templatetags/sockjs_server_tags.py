@@ -1,3 +1,4 @@
+from random import choice
 from django import template
 from django_sockjs_server.lib.config import SockJSSereverSettings
 from django_sockjs_server.lib.token import Token
@@ -15,4 +16,4 @@ def sockjs_auth_token(channel_name, unq_id=None):
 @register.simple_tag(name='sockjs_server_url')
 def sockjs_server_url():
     config = SockJSSereverSettings()
-    return config.sockjs_url
+    return choice(config.sockjs_url)

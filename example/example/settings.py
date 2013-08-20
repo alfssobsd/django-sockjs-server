@@ -148,7 +148,8 @@ DJANGO_SOCKJS_SERVER = {
     'rabbitmq_server_vhost': '/',
     'listen_addr': '0.0.0.0',
     'listen_port': 8083,
-    'secret_key': 'xe4pa7gysp4phe2rhyd'
+    'secret_key': 'xe4pa7gysp4phe2rhyd',
+    'sockjs_url': ['http://localhost:8083/ws', 'http://localhost:8083/ws']
 }
 
 LOGGING = {

@@ -38,7 +38,7 @@ Define ```DJANGO_SOCKJS_SERVER``` in ```settings.py```.
       'listen_port': 8083,
       'listen_location': '/ws'
       'secret_key': 'xe4pa7gysp4phe2rhyd',
-      'sockjs_url': 'http://localhost:8083/ws'
+      'sockjs_url': ['http://localhost:8083/ws']
   }
 ```
 * rabbitmq_server_host - rabbitmq server
