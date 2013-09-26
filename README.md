@@ -134,3 +134,31 @@ Send a message from django
     test_message['data']['user_id'] = 1
     a.publish_message(test_message)
 ```
+
+
+
+Get websocket stats
+
+```
+curl http://localhost:8083/stats/
+uptime_seconds: 5
+memory_use_byte: 0
+memory_resident_use_byte: 0
+memory_stack_size_byte: 0
+last_rabbitmq_reconnect: 2013-09-26 13:04:16.302877+00:00
+connect_rabbitmq_time_seconds: 5
+connects: 0
+channel_count: 0
+
+http://localhost:8083/stats/debug
+uptime_seconds: 5
+memory_use_byte: 0
+memory_resident_use_byte: 0
+memory_stack_size_byte: 0
+last_rabbitmq_reconnect: 2013-09-26 13:04:16.302877+00:00
+connect_rabbitmq_time_seconds: 5
+connects: 0
+channel_count: 0
+channels: [u'user']
+
+```
