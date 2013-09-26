@@ -8,10 +8,9 @@ class MemoryStats(object):
     def _VmB(self, VmKey):
         '''Private.
         '''
-        global _proc_status, _scale
         # get pseudo file  /proc/<pid>/status
         try:
-            t = open(_proc_status)
+            t = open(self._proc_status)
             v = t.read()
             t.close()
         except:
@@ -22,7 +21,7 @@ class MemoryStats(object):
         if len(v) < 3:
             return 0.0  # invalid format?
             # convert Vm value to bytes
-        return float(v[1]) * _scale[v[2]]
+        return float(v[1]) * self._scale[v[2]]
 
 
     def memory(self, since=0.0):
