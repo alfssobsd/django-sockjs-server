@@ -1,5 +1,8 @@
 import logging
+from django.utils.timezone import now
 import sockjs.tornado
+from tornado.web import RequestHandler
+from django_sockjs_server.lib.memory_stats import MemoryStats
 from django_sockjs_server.lib.pika_client import PikaClient
 from django_sockjs_server.lib.subscribe import Subscribe
 
@@ -24,8 +27,37 @@ class SockJSConnection(sockjs.tornado.SockJSConnection):
         self.logger.debug('Get message %s' % message)
         self.subscribe.add(message)
 
-class SockJSRouter(sockjs.tornado.SockJSRouter):
+class StatsHandler(RequestHandler):
+    def initialize(self, pika_client):
+        self.pika_client = pika_client
+        self.memory_stats = MemoryStats()
+
+    def get(self, type_stats='default'):
+        self.clear()
+        self.set_status(200)
+        if type_stats == 'debug':
+            self.finish("uptime: " + str(self.pika_client.get_uptime()) +
+                        "<br> memory_use_byte: " + str(self.memory_stats.memory()) +
+                        "<br> memory_resident_use_byte: " + str(self.memory_stats.resident()) +
+                        "<br> memory_stack_size_byte: " + str(self.memory_stats.stacksize()) +
+                        "<br> last_rabbitmq_reconnect: " + str(self.pika_client.get_last_reconnect()) +
+                        "<br> connect_rabbitmq_time: " + str((now() - self.pika_client.get_last_reconnect()).seconds) +
+                        "<br> connects: " + str(self.pika_client.get_event_listeners_count()) +
+                        "<br> channel_count: " + str(len(self.pika_client.get_subscribe_channels())) +
+                        "<br> channels: " + str(self.pika_client.get_subscribe_channels()))
+        else:
+            self.finish("uptime: " + str(self.pika_client.get_uptime()) +
+                        "<br> memory_use_byte: " + str(self.memory_stats.memory()) +
+                        "<br> memory_resident_use_byte: " + str(self.memory_stats.resident()) +
+                        "<br> memory_stack_size_byte: " + str(self.memory_stats.stacksize()) +
+                        "<br> last_rabbitmq_reconnect: " + str(self.pika_client.get_last_reconnect()) +
+                        "<br> connect_rabbitmq_time: " + str((now() - self.pika_client.get_last_reconnect()).seconds) +
+                        "<br> connects: " + str(self.pika_client.get_event_listeners_count()) +
+                        "<br> channel_count: " + str(len(self.pika_client.get_subscribe_channels())))
+
+
+class SockJSRouterPika(sockjs.tornado.SockJSRouter):
     def __init__(self, *args, **kw):
-        super(SockJSRouter, self).__init__(*args, **kw)
+        super(SockJSRouterPika, self).__init__(*args, **kw)
         self._connection.pika_client = PikaClient(self.io_loop)
         self._connection.pika_client.connect()

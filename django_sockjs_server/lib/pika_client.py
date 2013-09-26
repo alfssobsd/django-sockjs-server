@@ -2,6 +2,7 @@ from collections import defaultdict
 import json
 import logging
 from django.conf import settings
+from django.utils.timezone import now
 import pika
 from pika.adapters.tornado_connection import TornadoConnection
 from pika.exceptions import AMQPConnectionError
@@ -20,8 +21,13 @@ class PikaClient(object):
         self.connection = None
         self.channel = None
 
+        self.event_listeners_count = 0
         self.event_listeners = set()
         self.subscrib_channel = defaultdict(set)
+        self.last_reconnect = now()
+        self.uptime_start = now()
+
+
 
         self.config = SockJSSereverSettings()
 
@@ -49,6 +55,8 @@ class PikaClient(object):
             self.logger.info('django-sockjs-server(PikaClient): error connect, wait 5 sec')
             time.sleep(5)
             self.reconnect()
+
+        self.last_reconnect = now()
 
     def on_connected(self, connection):
         self.logger.info('django-sockjs-server(PikaClient): connected to RabbitMQ')
@@ -96,11 +104,13 @@ class PikaClient(object):
 
     def add_event_listener(self, listener):
         self.event_listeners.add(listener)
+        self.event_listeners_count += 1
         self.logger.debug('django-sockjs-server(PikaClient): listener %s added' % repr(listener))
 
     def remove_event_listener(self, listener):
         try:
             self.event_listeners.remove(listener)
+            self.event_listeners_count -= 1
             self.logger.debug('django-sockjs-server(PikaClient): listener %s removed' % repr(listener))
         except KeyError:
             pass
@@ -116,3 +126,18 @@ class PikaClient(object):
                               chanel))
         except KeyError:
             pass
+
+    def get_event_listeners_count(self):
+        return self.event_listeners_count
+
+    def get_subscribe_channel_count(self):
+        return len(self.subscrib_channel.keys())
+
+    def get_subscribe_channels(self):
+        return self.subscrib_channel.keys()
+
+    def get_last_reconnect(self):
+        return self.last_reconnect
+
+    def get_uptime(self):
+        return (now() - self.uptime_start).seconds
