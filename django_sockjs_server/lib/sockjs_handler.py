@@ -34,26 +34,27 @@ class StatsHandler(RequestHandler):
 
     def get(self, type_stats='default'):
         self.clear()
+        self.set_header("Content-Type", "text/plain")
         self.set_status(200)
         if type_stats == 'debug':
             self.finish("uptime_seconds: " + str(self.pika_client.get_uptime()) +
-                        "<br> memory_use_byte: " + str(int(self.memory_stats.memory())) +
-                        "<br> memory_resident_use_byte: " + str(int(self.memory_stats.resident())) +
-                        "<br> memory_stack_size_byte: " + str(int(self.memory_stats.stacksize())) +
-                        "<br> last_rabbitmq_reconnect: " + str(self.pika_client.get_last_reconnect()) +
-                        "<br> connect_rabbitmq_time_seconds: " + str((now() - self.pika_client.get_last_reconnect()).seconds) +
-                        "<br> connects: " + str(self.pika_client.get_event_listeners_count()) +
-                        "<br> channel_count: " + str(len(self.pika_client.get_subscribe_channels())) +
-                        "<br> channels: " + str(self.pika_client.get_subscribe_channels()))
+                        "\n memory_use_byte: " + str(int(self.memory_stats.memory())) +
+                        "\n memory_resident_use_byte: " + str(int(self.memory_stats.resident())) +
+                        "\n memory_stack_size_byte: " + str(int(self.memory_stats.stacksize())) +
+                        "\n last_rabbitmq_reconnect: " + str(self.pika_client.get_last_reconnect()) +
+                        "\n connect_rabbitmq_time_seconds: " + str((now() - self.pika_client.get_last_reconnect()).seconds) +
+                        "\n connects: " + str(self.pika_client.get_event_listeners_count()) +
+                        "\n channel_count: " + str(len(self.pika_client.get_subscribe_channels())) +
+                        "\n channels: " + str(self.pika_client.get_subscribe_channels()))
         else:
             self.finish("uptime_seconds: " + str(self.pika_client.get_uptime()) +
-                        "<br> memory_use_byte: " + str(int(self.memory_stats.memory())) +
-                        "<br> memory_resident_use_byte: " + str(int(self.memory_stats.resident())) +
-                        "<br> memory_stack_size_byte: " + str(int(self.memory_stats.stacksize())) +
-                        "<br> last_rabbitmq_reconnect: " + str(self.pika_client.get_last_reconnect()) +
-                        "<br> connect_rabbitmq_time_seconds: " + str((now() - self.pika_client.get_last_reconnect()).seconds) +
-                        "<br> connects: " + str(self.pika_client.get_event_listeners_count()) +
-                        "<br> channel_count: " + str(len(self.pika_client.get_subscribe_channels())))
+                        "\n memory_use_byte: " + str(int(self.memory_stats.memory())) +
+                        "\n memory_resident_use_byte: " + str(int(self.memory_stats.resident())) +
+                        "\n memory_stack_size_byte: " + str(int(self.memory_stats.stacksize())) +
+                        "\n last_rabbitmq_reconnect: " + str(self.pika_client.get_last_reconnect()) +
+                        "\n connect_rabbitmq_time_seconds: " + str((now() - self.pika_client.get_last_reconnect()).seconds) +
+                        "\n connects: " + str(self.pika_client.get_event_listeners_count()) +
+                        "\n channel_count: " + str(len(self.pika_client.get_subscribe_channels())))
 
 
 class SockJSRouterPika(sockjs.tornado.SockJSRouter):
