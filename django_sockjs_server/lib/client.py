@@ -14,9 +14,7 @@ class SockJsServerClient(object):
         self.connected = False
         self.retry_count = 0
 
-        self._connect()
-
-    def _connect(self):
+    def _connect(self, is_retry=False):
         cred = pika.PlainCredentials(self.config.rabbitmq_user, self.config.rabbitmq_password)
         param = pika.ConnectionParameters(
             host=self.config.rabbitmq_host,
@@ -29,16 +27,17 @@ class SockJsServerClient(object):
         self.channel.exchange_declare(exchange=self.config.rabbitmq_exhange_name,
                                       exchange_type=self.config.rabbitmq_exchange_type)
         self.connected = True
-        self.retry_count = 0
+        if not is_retry:
+            self.retry_count = 0
 
     def _disconnect(self):
         self.connected = False
         self.connection.disconnect()
 
-    def publish_message(self, message):
+    def publish_message(self, message, is_retry=False):
         try:
             if not self.connected:
-                self._connect()
+                self._connect(is_retry)
             self.channel.basic_publish(self.config.rabbitmq_exhange_name,
                                        routing_key='',
                                        body=json.dumps(message, cls=DjangoJSONEncoder))
@@ -49,4 +48,4 @@ class SockJsServerClient(object):
                 self.retry_count += 1
                 #wait 100 ms
                 time.sleep(100 / 1000000.0)
-                self.publish_message(message)
+                self.publish_message(message, True)
