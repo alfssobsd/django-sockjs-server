@@ -7,6 +7,7 @@ Simple sockjs server for django.
 * sockjs-tornado >= 1.0.0
 * pika >= 0.9.12
 * django >= 1.4
+* redis >= 2.9.1
 
 ## Installation:
 ```
@@ -33,7 +34,8 @@ Define ```DJANGO_SOCKJS_SERVER``` in ```settings.py```.
       'rabbitmq_server_port': 5672,
       'rabbitmq_server_vhost': '/',
       'rabbitmq_exhange_name': 'sockjs',
-      'rabbitmq_exchange_type': 'fanout',
+      'rabbitmq_queue_name': 'ws01',
+      'rabbitmq_exchange_type': 'direct',
       'listen_addr': '0.0.0.0',
       'listen_port': 8083,
       'listen_location': '/ws'
@@ -59,6 +61,7 @@ Define ```DJANGO_SOCKJS_SERVER``` in ```settings.py```.
 ## Usage:
 <center>
 <img src="https://raw.github.com/alfss/django-sockjs-server/master/README_1.png" alt="2">
+<img src="https://raw.github.com/alfss/django-sockjs-server/master/README_2.png" alt="2">
 </center>
 
 Run sockjs-server
@@ -126,13 +129,24 @@ To get this messages you need to subscribe by token
 Send a message from django
 
 ```
-    a = SockJsServerClient()
+    client = SockJsServerClient()
     test_message = dict()
-    test_message['channel'] = 'user'
-    test_message['data'] = dict()
-    test_message['data']['user_name'] = "Sergey Kravchuk"
-    test_message['data']['user_id'] = 1
-    a.publish_message(test_message)
+    room = 'user'
+    data = dict()
+    data['user_name'] = "Sergey Kravchuk"
+    data['user_id'] = 1
+    connections = client.get_connections(room)
+    for conn in connections:
+        conn_id = conn.get('id')
+        host = conn.get('host')
+        if conn_id and host:
+            message = {
+                'uid': conn_id,
+                'host': host,
+                'data': data,
+                'room': room
+            }
+            client.publish_message(message)  
 ```
 
 
