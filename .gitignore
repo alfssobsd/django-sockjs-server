@@ -6,6 +6,7 @@
 *.swp
 *.swo
 *.iml
+*.egg-info
 development.sqlite3
 
 /static/bootstrap/

@@ -5,6 +5,9 @@ from tornado.web import RequestHandler
 from django_sockjs_server.lib.memory_stats import MemoryStats
 from django_sockjs_server.lib.pika_client import PikaClient
 from django_sockjs_server.lib.subscribe import Subscribe
+from django_sockjs_server.lib.redis_client import redis_client
+from django_sockjs_server.lib.config import SockJSServerSettings
+
 
 class SockJSConnection(sockjs.tornado.SockJSConnection):
 
@@ -13,7 +16,9 @@ class SockJSConnection(sockjs.tornado.SockJSConnection):
     def __init__(self, *args, **kw):
         self.subscribe_list = set()
         self.subscribe = Subscribe(self)
+        self.redis = redis_client
         self.logger = logging.getLogger(__name__)
+        self.conf = SockJSServerSettings()
         super(SockJSConnection, self).__init__(*args, **kw)
 
     def on_open(self, info):
@@ -27,9 +32,11 @@ class SockJSConnection(sockjs.tornado.SockJSConnection):
         self.logger.debug('Get message %s' % message)
         self.subscribe.add(message)
 
+
 class StatsHandler(RequestHandler):
     def initialize(self, pika_client):
         self.pika_client = pika_client
+        self.redis = redis_client
         self.memory_stats = MemoryStats()
 
     def get(self, type_stats='default'):
@@ -45,7 +52,10 @@ class StatsHandler(RequestHandler):
                         "\n connect_rabbitmq_time_seconds: " + str((now() - self.pika_client.get_last_reconnect()).seconds) +
                         "\n connects: " + str(self.pika_client.get_event_listeners_count()) +
                         "\n channel_count: " + str(len(self.pika_client.get_subscribe_channels())) +
-                        "\n channels: " + str(self.pika_client.get_subscribe_channels()))
+                        "\n channels: " + str(self.pika_client.get_subscribe_channels()) +
+                        "\n redis_connect_tries: %s" % (self.redis.connect_tries) +
+                        "\n redis_uptime_seconds %s" % (self.redis.get_uptime())
+            )
         else:
             self.finish("uptime_seconds: " + str(self.pika_client.get_uptime()) +
                         "\n memory_use_byte: " + str(int(self.memory_stats.memory())) +
@@ -54,7 +64,10 @@ class StatsHandler(RequestHandler):
                         "\n last_rabbitmq_reconnect: " + str(self.pika_client.get_last_reconnect()) +
                         "\n connect_rabbitmq_time_seconds: " + str((now() - self.pika_client.get_last_reconnect()).seconds) +
                         "\n connects: " + str(self.pika_client.get_event_listeners_count()) +
-                        "\n channel_count: " + str(len(self.pika_client.get_subscribe_channels())))
+                        "\n channel_count: " + str(len(self.pika_client.get_subscribe_channels())) +
+                        "\n redis_connect_tries: %s" % (self.redis.connect_tries) +
+                        "\n redis_uptime_seconds %s" % (self.redis.get_uptime())
+            )
 
 
 class SockJSRouterPika(sockjs.tornado.SockJSRouter):
