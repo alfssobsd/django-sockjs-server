@@ -32,7 +32,7 @@ class Subscribe(object):
 
 
     def get_host(self):
-        return self.conn.pika_client.queue
+        return self.conn.sockjs_server.queue
 
     def add(self, data):
         try:
@@ -50,7 +50,7 @@ class Subscribe(object):
                 )
 
                 self.conn.subscribe_list.add(uid)
-                self.conn.pika_client.add_subscriber_channel(
+                self.conn.sockjs_server.add_subscriber_room(
                     uid, room, self.conn
                 )
 
@@ -61,9 +61,9 @@ class Subscribe(object):
         host = self.get_host()
         for uid in self.conn.subscribe_list:
             self.redis.lrem(
-                self.conn.pika_client.subscrib_channel[uid]['room'],
+                self.conn.sockjs_server.subscrib_connection[uid]['room'],
                 0,
                 json.dumps({'id': uid, 'host': host})
             )
-            self.conn.pika_client.remove_subscriber_channel(uid, self.conn)
+            self.conn.sockjs_server.remove_subscriber_room(uid, self.conn)
         self.conn.subscribe_list = []
