@@ -17,7 +17,7 @@ class Command(BaseCommand):
             SockJSConnection,
             self.config.listen_location,
             user_settings=self.config.router_settings)
-        app = tornado.web.Application([(r"/stats/(.*)", StatsHandler, dict(pika_client=router._connection.pika_client))] +
+        app = tornado.web.Application([(r"/stats/(.*)", StatsHandler, dict(sockjs_server=router._connection.sockjs_server))] +
                                       router.urls)
 
 
