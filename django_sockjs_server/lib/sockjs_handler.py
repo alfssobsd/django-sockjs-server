@@ -1,3 +1,6 @@
+import hashlib
+import datetime
+import time
 import logging
 from django.utils.timezone import now
 import sockjs.tornado
@@ -14,11 +17,11 @@ class SockJSConnection(sockjs.tornado.SockJSConnection):
     sockjs_server = None  # should be initialized by router
 
     def __init__(self, *args, **kw):
-        self.subscribe_list = set()
         self.subscribe = Subscribe(self)
         self.redis = redis_client
         self.logger = logging.getLogger(__name__)
         self.conf = SockJSServerSettings()
+        self.id = self._generate_connection_id()
         super(SockJSConnection, self).__init__(*args, **kw)
 
     def on_open(self, info):
@@ -32,6 +35,17 @@ class SockJSConnection(sockjs.tornado.SockJSConnection):
         self.logger.debug('Get message %s' % message)
         self.subscribe.add(message)
 
+    def _generate_connection_id(self):
+        client = self
+        now = datetime.datetime.utcnow()
+        seconds = time.mktime(now.timetuple()) + now.microsecond / 1e6
+        connection_id = hashlib.md5(
+            "%s %s" % (
+                seconds,
+                id(client)
+            )
+        ).hexdigest()
+        return connection_id
 
 class StatsHandler(RequestHandler):
 
@@ -51,9 +65,8 @@ class StatsHandler(RequestHandler):
                         "\n memory_stack_size_byte: " + str(int(self.memory_stats.stacksize())) +
                         "\n last_rabbitmq_reconnect: " + str(self.sockjs_server.get_last_reconnect()) +
                         "\n connect_rabbitmq_time_seconds: " + str((now() - self.sockjs_server.get_last_reconnect()).seconds) +
-                        "\n connects: " + str(self.sockjs_server.get_event_listeners_count()) +
-                        "\n connection_count: " + str(len(self.sockjs_server.get_subscribe_connections())) +
-                        "\n connections: " + str(self.sockjs_server.get_subscribe_connections()) +
+                        "\n event_listeners_count: " + str(self.sockjs_server.get_event_listeners_count()) +
+                        "\n connects: " + str(self.sockjs_server.get_subscribe_connections()) +
                         "\n redis_connect_tries: %s" % (self.redis.connect_tries) +
                         "\n redis_uptime_seconds %s" % (self.redis.get_uptime()))
         else:
@@ -63,8 +76,8 @@ class StatsHandler(RequestHandler):
                         "\n memory_stack_size_byte: " + str(int(self.memory_stats.stacksize())) +
                         "\n last_rabbitmq_reconnect: " + str(self.sockjs_server.get_last_reconnect()) +
                         "\n connect_rabbitmq_time_seconds: " + str((now() - self.sockjs_server.get_last_reconnect()).seconds) +
-                        "\n connects: " + str(self.sockjs_server.get_event_listeners_count()) +
-                        "\n connection_count: " + str(len(self.sockjs_server.get_subscribe_connections())) +
+                        "\n event_listeners_count: " + str(self.sockjs_server.get_event_listeners_count()) +
+                        "\n connects: " + str(len(self.sockjs_server.get_subscribe_connections())) +
                         "\n redis_connect_tries: %s" % (self.redis.connect_tries) +
                         "\n redis_uptime_seconds %s" % (self.redis.get_uptime()))
 
