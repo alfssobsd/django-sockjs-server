@@ -25,7 +25,8 @@ class SockjsServer(object):
         self.redis = redis_client
         self.event_listeners_count = 0
         self.event_listeners = set()
-        self.subscrib_connection = dict()
+        self.connection_dict = dict()
+        self.subscription_dict = defaultdict(set)
         self.last_reconnect = now()
         self.uptime_start = now()
 
@@ -102,11 +103,10 @@ class SockjsServer(object):
 
         self.logger.debug('django-sockjs-server(SockjsServer): send message %s ' % event_obj)
         try:
-            connection = self.subscrib_connection[event_obj['uid']]
+            client = self.connection_dict[event_obj['uid']]
         except KeyError:
             self.redis.lrem(event_obj['room'], 0, json.dumps({'id': event_obj['uid'], 'host': event_obj['host']}))
         else:
-            client = connection['conn']
             new_event_json = json.dumps({'data': event_obj['data']})
             client.broadcast([client], new_event_json)
 
@@ -123,27 +123,38 @@ class SockjsServer(object):
         except KeyError:
             pass
 
-    def add_subscriber_room(self, conn_id, room, client):
-        self.subscrib_connection[conn_id] = {'room': room, 'conn': client}
-        self.logger.debug('django-sockjs-server(SockjsServer): listener %s add to room %s' % (repr(client), room))
 
-    def remove_subscriber_room(self, conn_id, client):
+
+
+    def add_subscriber_room(self, room, conn):
         try:
-            room = self.subscrib_connection[conn_id].get('room')
-            del self.subscrib_connection[conn_id]
-            self.logger.debug('django-sockjs-server(SockjsServer): listener %s del connection %s from room %s' % (repr(client),
-                              conn_id, room))
-        except KeyError:
+            conn_id = conn.id
+            self.connection_dict.setdefault(conn_id, conn)
+            client = self.connection_dict[conn_id]
+            self.subscription_dict[conn_id].add(room)
+            self.logger.debug('django-sockjs-server(SockjsServer): listener %s add to room %s' % (repr(client), room))
+        except KeyError, exc:
+            pass
+
+
+    def remove_subscriber(self, conn_id):
+        try:
+            client = self.connection_dict[conn_id]
+            del self.subscription_dict[conn_id]
+            del self.connection_dict[conn_id]
+            self.logger.debug('django-sockjs-server(SockjsServer): listener %s del connection %s' % (repr(client),
+                              conn_id))
+        except KeyError, exc:
             pass
 
     def get_event_listeners_count(self):
         return self.event_listeners_count
 
     def get_subscribe_connection_count(self):
-        return len(self.subscrib_connection.keys())
+        return len(self.connection_dict.keys())
 
     def get_subscribe_connections(self):
-        return self.subscrib_connection.keys()
+        return self.connection_dict.keys()
 
     def get_last_reconnect(self):
         return self.last_reconnect
