@@ -33,9 +33,12 @@ Define ```DJANGO_SOCKJS_SERVER``` in ```settings.py```.
       'rabbitmq_password': 'guest',
       'rabbitmq_server_port': 5672,
       'rabbitmq_server_vhost': '/',
-      'rabbitmq_exhange_name': 'sockjs',
+      'rabbitmq_exchange_name': 'sockjs',
       'rabbitmq_queue_name': 'ws01',
       'rabbitmq_exchange_type': 'direct',
+      'redis_host': 'localhost',
+      'redis_port':  '6379',
+      'redis_db': 0,
       'listen_addr': '0.0.0.0',
       'listen_port': 8083,
       'listen_location': '/ws'
@@ -48,13 +51,16 @@ Define ```DJANGO_SOCKJS_SERVER``` in ```settings.py```.
 * rabbitmq_password - rabbitmq password
 * rabbitmq_server_port - rabbitmq port
 * rabbitmq_server_vhost - rabbitmq vhost
-* rabbitmq_exhange_name - exchange name
+* rabbitmq_exchange_name - exchange name
 * rabbitmq_exchange_type - type exchange
 * listen_addr - listen sockjs server address
 * listen_port - listen sockjs server port
 * listen_location - listen sockjs server location
 * secret_key - salt for subscribe
 * sockjs_url - path for client sockjs
+* redis_host - redis server host
+* redis_port - redis server port
+* redis_db - redis db
 
 
 
